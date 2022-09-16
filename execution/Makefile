@@ -2,7 +2,7 @@ NAME = exec.a
 SRC = *.c
 CC = cc
 CFLAGS = -Wall -Werror -Wextra
-FS = -fsanitize=address
+#FS = -fsanitize=address
 LIB =  /Users/ymourchi/.brew/opt/readline/lib
 INCLUDE = /Users/ymourchi/.brew/opt/readline/include
 LIBFT = ../libft/libft.a
@@ -13,7 +13,7 @@ $(NAME):
 		$(CC) $(CFLAGS) $(FS) $(SRC) gnl/*.c $(LIBFT) utils.c -o $(NAME)
 
 exec: 
-	$(CC) $(CFLAGS) -fsanitize=address -lreadline -L $(LIB) -I $(INCLUDE) $(LIBFT) *.c ../lexer/*.c ../parsing/*.c -o minishell
+	$(CC) $(CFLAGS) $(FS) -lreadline -L $(LIB) -I $(INCLUDE) $(LIBFT) *.c ../lexer/*.c ../parsing/*.c -o minishell
 
 clean:
 	rm -f $(NAME)

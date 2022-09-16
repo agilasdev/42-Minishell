@@ -51,9 +51,9 @@ void	add_var(int last, char *str, t_list **elist)
 		ft_lstadd_back(elist, ft_lstnew((void *) elem));
 	else
 	{
-		if (!tmp->value && (str[last + 1] == '=' || str[last + 1] == '+'))
+		if (!tmp->value && elem->value)
 			tmp->value = ft_strdup(elem->value);
-		else
+		else if (tmp->value && elem->value)
 		{
 			val = tmp->value;
 			if (str[last + 1] == '=')

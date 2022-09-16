@@ -124,8 +124,8 @@ char	*lexer_advance_until_closed_quote(t_lexer *lexer, char **value)
 		lexer_advance(lexer);
 	else
 	{
-		ft_putendl_fd("\033[0;31munclosed quote error\033[0m", 2);
-		g_estat = 1;
+		ft_putendl_fd("MiniShell: unclosed quote error", 2);
+		g_estat = -1;
 		if (*value)
 		{
 			free(*value);

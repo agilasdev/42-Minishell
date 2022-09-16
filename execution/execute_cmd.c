@@ -17,6 +17,7 @@ void	execution(t_list **clist, t_list **elist)
 	char	**envp;
 
 	envp = NULL;
+	signal (2, SIG_IGN);
 	if (open_files(clist, elist))
 	{
 		envp = create_envp(*elist);
@@ -24,8 +25,8 @@ void	execution(t_list **clist, t_list **elist)
 			onecmd(clist, elist, envp);
 		else
 			morecmds(clist, elist, envp);
+		clear_list(envp);
 	}
-	clear_list(envp);
 	ft_lstclear(clist, del_cmd);
 }
 
@@ -33,25 +34,28 @@ void	onecmd(t_list **clist, t_list **elist, char **envp)
 {
 	t_cmd	*cmd;
 	int		pid;
-	int		stat;
 
 	cmd = (t_cmd *)(*clist)->content;
-	if (!ft_strcmp(cmd->args[0], "exit"))
-		stat = exit_cmd(cmd->args + 1, clist, elist);
-	else
-		stat = isbuiltin(cmd->args, elist, cmd->outfd);
-	if (stat < 0)
+	to_lower(cmd->args[0]);
+	if (cmd->args)
 	{
-		pid = fork();
-		if (!pid)
+		if (!ft_strcmp(cmd->args[0], "exit"))
+			g_estat = exit_cmd(cmd->args + 1, clist, elist);
+		else
+			g_estat = isbuiltin(cmd->args, elist, cmd->outfd);
+		if (g_estat < 0)
 		{
-			if (cmd->infd)
-				dup2(cmd->infd, 0);
-			if (cmd->outfd != 1)
-				dup2(cmd->outfd, 1);
-			execute_cmd(cmd, elist, envp);
+			pid = fork();
+			if (!pid)
+			{
+				if (cmd->infd)
+					dup2(cmd->infd, 0);
+				if (cmd->outfd != 1)
+					dup2(cmd->outfd, 1);
+				execute_cmd(cmd, elist, envp);
+			}
+			statexit(pid, 1);
 		}
-		statexit(pid, 1);
 	}
 }
 
@@ -65,6 +69,7 @@ void	morecmds(t_list **clist, t_list **elist, char **envp)
 	while (tmp)
 	{
 		cmd = (t_cmd *) tmp->content;
+		to_lower(cmd->args[0]);
 		pid = fork();
 		if (pid < 0)
 		{
@@ -107,6 +112,7 @@ void	execute_cmd(t_cmd	*cmd, t_list **elist, char **envp)
 {
 	t_env_content	*elem;
 
+	signal(2, child_sig);
 	elem = get_content("PATH", elist);
 	if (!ft_strcmp(cmd->args[0], "minishell"))
 	{

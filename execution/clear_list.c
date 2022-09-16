@@ -70,7 +70,10 @@ void	del_token(void	*content)
 
 void	clear_all(t_list **clist, t_list **elist, char **envp)
 {
-	clear_list(envp);
-	ft_lstclear(clist, del_cmd);
-	ft_lstclear(elist, del_env);
+	if (envp)
+		clear_list(envp);
+	if (clist)
+		ft_lstclear(clist, del_cmd);
+	if (elist)
+		ft_lstclear(elist, del_env);
 }

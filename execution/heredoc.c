@@ -12,16 +12,14 @@
 
 #include "../include/minishell.h"
 
-void	write_in_heredoc(char *delim, int *infd, int stat)
+void	wherdoc(char *delim, int *fd, int stat)
 {
-	int		fd[2];
 	char	*line;
 
-	pipe(fd);
-	line = NULL;
-	line = readline("> ");
+	signal(2, heredoc_sig);
 	while (1)
 	{
+		line = readline("> ");
 		if (!line || !ft_strcmp(delim, line))
 			break ;
 		add_history(line);
@@ -31,17 +29,33 @@ void	write_in_heredoc(char *delim, int *infd, int stat)
 			write(fd[1], "\n", 1);
 		}
 		free(line);
-		line = readline("> ");
 	}
-	if (stat)
+	exit(0);
+}
+
+int	write_in_heredoc(char *delim, int *infd, int stat)
+{
+	int	fd[2];
+	int	pid;
+
+	pipe(fd);
+	pid = fork();
+	if (pid < 0)
+		return (0);
+	if (!pid)
+		wherdoc(delim, fd, stat);
+	waitpid(pid, &g_estat, 0);
+	if (WIFEXITED(g_estat))
+		g_estat = WEXITSTATUS(g_estat);
+	if (stat && !g_estat)
 		*infd = fd[0];
 	else
 		close(fd[0]);
 	close(fd[1]);
-	free(line);
+	return (g_estat);
 }
 
-void	open_heredoc(t_list *clist)
+int	open_heredoc(t_list *clist)
 {
 	t_list	*infile;
 	t_token	*token;
@@ -54,15 +68,29 @@ void	open_heredoc(t_list *clist)
 		while (infile)
 		{
 			token = (t_token *) infile->content;
-			if (token->e_type == TOKEN_HRDOC)
-			{
-				if (token == ft_lstlast(cmd->inlist)->content)
-					write_in_heredoc(token->value, &cmd->infd, 1);
-				else
-					write_in_heredoc(token->value, NULL, 0);
-			}
+			if (!tkn_herdoc(cmd, token))
+				return (0);
 			infile = infile->next;
 		}
 		clist = clist->next;
 	}
+	return (1);
+}
+
+int	tkn_herdoc(t_cmd *cmd, t_token *token)
+{
+	if (token->e_type == TOKEN_HRDOC)
+	{
+		if (token == ft_lstlast(cmd->inlist)->content)
+		{
+			if (write_in_heredoc(token->value, &cmd->infd, 1))
+				return (0);
+		}
+		else
+		{
+			if (write_in_heredoc(token->value, NULL, 0))
+				return (0);
+		}
+	}
+	return (1);
 }

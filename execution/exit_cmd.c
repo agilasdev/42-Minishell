@@ -20,10 +20,10 @@ void	statexit(int pid, int len)
 	{
 		if (waitpid(-1, &stat, 0) == pid)
 		{
+			if (WIFSIGNALED(stat))
+				g_estat = 130;
 			if (WIFEXITED(stat))
 				g_estat = WEXITSTATUS(stat);
-			else
-				g_estat = 0;
 		}
 	}
 }

@@ -29,8 +29,12 @@ int	open_pipes(t_list *clist)
 		}
 		if (!c_cmd->outlist)
 			c_cmd->outfd = fd[1];
+		else
+			close(fd[1]);
 		if (!n_cmd->inlist)
 			n_cmd->infd = fd[0];
+		else
+			close(fd[0]);
 		clist = clist->next;
 	}
 	return (1);
@@ -98,7 +102,8 @@ int	open_files(t_list **clist, t_list **env_list)
 	t_cmd	*cmd;
 
 	lst = *clist;
-	open_heredoc(lst);
+	if (!open_heredoc(lst))
+		return (0);
 	while (lst)
 	{
 		cmd = (t_cmd *) lst->content;

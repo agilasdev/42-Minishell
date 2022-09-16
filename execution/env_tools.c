@@ -16,9 +16,7 @@ char	**create_envp(t_list *elist)
 {
 	int				i;
 	char			**envp;
-	char			*tmp1;
-	char			*tmp2;
-	t_env_content	*env_elem;
+	t_env_content	*envl;
 
 	i = ft_lstsize(elist);
 	envp = (char **) malloc(sizeof(char *) * (i + 1));
@@ -26,11 +24,8 @@ char	**create_envp(t_list *elist)
 	i = 0;
 	while (elist)
 	{
-		env_elem = (t_env_content *) elist->content;
-		tmp1 = ft_strjoin(env_elem->var, "=");
-		tmp2 = ft_strjoin(tmp1, env_elem->value);
-		free(tmp1);
-		envp[i] = tmp2;
+		envl = (t_env_content *) elist->content;
+		envp[i] = concat_envl(envl->var, envl->value);
 		i++;
 		elist = elist->next;
 	}
@@ -79,9 +74,6 @@ void	fill_env_list(char *envp[], t_list **elist)
 	}
 	if (!get_content("OLDPWD", elist))
 		ft_lstadd_back(elist, ft_lstnew(set_content("OLDPWD")));
-	c = get_content("_", elist);
-	free(c->value);
-	c->value = ft_strdup("/usr/bin/env");
 }
 
 t_env_content	*get_content(char *var, t_list **elist)

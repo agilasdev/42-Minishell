@@ -3,6 +3,7 @@
 
 #include "token.h"
 #include "../libft/libft.h"
+// #include "minishell.h"
 
 typedef struct LEXER_STRUCT
 {
@@ -41,38 +42,37 @@ int		is_special_char(char c);
 
 int		to_be_treated(char *str);
 
-void	ft_substitute(t_lexer *lexer, char **value, t_list **env_list);
+void	ft_substitute(t_lexer *lexer, char **value, t_list **env_list, int pretype);
 
-void	ft_treat_str(t_token *token, t_list **tokens_list, t_list **env_list);
+void	ft_treat_str(t_token *token, t_list **tokens_list, t_list **env_list, int pretype);
 
 t_list	*expand_tokens(char	*cmd_line, t_list	**env_list);
 
 void	ft_handle_sq(t_lexer *lexer, char **value);
 
-void	ft_handle_$(t_lexer *lexer, char **value, t_list **env_list);
+void	ft_handle_$(t_lexer *lexer, char **value, t_list **env_list, int pretype);
 
-void	ft_handle_dq(t_lexer *lexer, char **value, t_list **env_list);
+void	ft_handle_dq(t_lexer *lexer, char **value, t_list **env_list, int pretype);
 
 void	add_up_str(char **value, char **str_to_add);
 
-void	ft_expand(char **to_expand, t_list **env_list);
+void	ft_expand(char **to_expand, t_list **env_list, int pretype);
 
 // parsing utils
 
-typedef struct s_file
-{
-	t_token *token;
-	int		fd;
-}		t_file;
 
-int	is_redir(int type);
-int	is_pipe(int type);
-int	not_str(int type);
+// int	is_redir(int type);
+// int	is_pipe(int type);
+// int	not_str(int type);
 
 t_list	*create_cmd_list(t_list **tokens_list);
 
+void	ft_error_msg(char *s, int exit_num);
 void	check_errors(t_list **tokens_list);		// checks parsing errors
+void	errors_cases(int type_curr, int type_next, char *value);
 
 char	**list_to_array(t_list **lst);
+void	add_file(t_cmd **acmd, t_list **tmp);
+void	add_cmd(t_cmd **acmd, t_list **arglist, t_list **cmd_list);
 
 #endif

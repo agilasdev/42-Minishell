@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 void	display_n_free_cmd_list(t_list **cmd);
+void	del_token(void *content);
 
 int main(int argc, char *argv[], char *envp[])
 {
@@ -17,14 +18,29 @@ int main(int argc, char *argv[], char *envp[])
 	{
 		g_estat = 0;
 		t_list *tokens_list = expand_tokens(line, &env_list);
-		check_errors(&tokens_list);
-		t_list *cmd_list = create_cmd_list(&tokens_list);
-		display_n_free_cmd_list(&cmd_list);
+		if (tokens_list)
+		{
+			check_errors(&tokens_list);
+			ft_lstclear(&tokens_list, del_token);
+			// t_list *cmd_list = create_cmd_list(&tokens_list);
+			// display_n_free_cmd_list(&cmd_list);
+		}
 		free(line);
-		// system("leaks test");
+		system("leaks test");
 		line = gnl(0);
 	}
 	return (0);
+}
+
+void	del_token(void *content)
+{
+	t_token	*token;
+
+	token = content;
+	printf("TOKEN(`%s`, %s)\n", token->value, \
+			ft_translate_token_type(token->e_type));
+	free(token->value);
+	free(token);
 }
 
 const char	*ft_translate_token_type(int type)
@@ -41,24 +57,24 @@ const char	*ft_translate_token_type(int type)
 }
 
 void	display_list(t_list **flist);
-void	display_args(char **args);
+void	display_arglist(char **arglist);
 
 void	display_n_free_cmd_list(t_list **cmd)
 {
 	t_list *tmp = *cmd;
 	t_list *inlist;
 	t_list *outlist;
-	char 	**args;
+	char 	**arglist;
 
 	while (tmp)
 	{
 		t_cmd *cmd = tmp->content;
 
-		args = cmd->args;
+		arglist = cmd->args;
 		outlist = cmd->outlist;
 		inlist = cmd->inlist;
 		printf("ARGS: \n");
-		display_args(args);
+		display_arglist(arglist);
 		printf("Infiles: \n");
 		display_list(&inlist);
 		printf("Outfiles: \n");
@@ -80,16 +96,16 @@ void	display_list(t_list **flist)
 	}
 }
 
-void	display_args(char **args)
+void	display_arglist(char **arglist)
 {
 	int	i;
 
 	i = 0;
-	if (args == 0)
+	if (arglist == 0)
 		return ;
-	while (!g_estat && args[i])
+	while (!g_estat && arglist[i])
 	{
-		printf("[%s] ", args[i]);
+		printf("[%s] ", arglist[i]);
 		i++;
 	}
 	printf("\n");

@@ -1,13 +1,13 @@
 #include "../include/minishell.h"
 
-void	ft_substitute(t_lexer *lexer, char **value, t_list **env_list)
+void	ft_substitute(t_lexer *lexer, char **value, t_list **env_list, int pretype)
 {
 	if (lexer->c == '\'')
 		ft_handle_sq(lexer, value);
 	else if (lexer->c == '$')
-		ft_handle_$(lexer, value, env_list);
+		ft_handle_$(lexer, value, env_list, pretype);
 	else if (lexer->c == '"')
-		ft_handle_dq(lexer, value, env_list);
+		ft_handle_dq(lexer, value, env_list, pretype);
 }
 
 void	ft_sub_lexing(char **value, t_list **tokens_list)
@@ -20,12 +20,6 @@ void	ft_sub_lexing(char **value, t_list **tokens_list)
 	while (token != 0)
 	{
 		token->e_type = TOKEN_STR;
-		// if (!ft_strcmp(token->value, ""))
-		// {
-		// 	free(token->value);
-		// 	free(token);
-		// 	break;
-		// }
 		ft_lstadd_back(tokens_list, ft_lstnew(token));
 		token = lexer_get_next_token(lexer);
 	}
@@ -35,7 +29,7 @@ void	ft_sub_lexing(char **value, t_list **tokens_list)
 
 }
 
-void	ft_treat_str(t_token *token, t_list **tokens_list, t_list **env_list)
+void	ft_treat_str(t_token *token, t_list **tokens_list, t_list **env_list, int pretype)
 {
 	char	*value;
 	t_lexer	*lexer;
@@ -45,7 +39,7 @@ void	ft_treat_str(t_token *token, t_list **tokens_list, t_list **env_list)
 	while (lexer->c)
 	{
 		if (lexer->c == '$' || lexer->c == '"' || lexer->c == '\'')
-			ft_substitute(lexer, &value, env_list);
+			ft_substitute(lexer, &value, env_list, pretype);
 		else
 		{
 			add_up_char(lexer, &value);
@@ -68,14 +62,19 @@ void	ft_treat_str(t_token *token, t_list **tokens_list, t_list **env_list)
 
 t_list	*expand_tokens(char	*cmd_line, t_list	**env_list)
 {
-	// (void) env_list;
 	t_lexer	*lexer;
 	t_list	*tokens_list = 0;
 	t_token	*token = 0;
+	int		pretype = -1;
 
 	lexer = init_lexer(cmd_line);
 	while ((token = lexer_get_next_token(lexer)) != 0)
 	{
+		if (g_estat == -1)
+		{
+			g_estat = 1;
+			break;
+		}
 		if (!ft_strcmp(token->value, "\"\"") || !ft_strcmp(token->value, "\'\'"))
 		{
 			free(token->value);
@@ -83,13 +82,11 @@ t_list	*expand_tokens(char	*cmd_line, t_list	**env_list)
 			ft_lstadd_back(&tokens_list, ft_lstnew(token));
 		}
 		else if (token->e_type == TOKEN_STR && to_be_treated(token->value))
-		{
-			ft_treat_str(token, &tokens_list, env_list);}
-		else{
+				ft_treat_str(token, &tokens_list, env_list, pretype);
+		else
 			ft_lstadd_back(&tokens_list, ft_lstnew(token));
-		}
+		pretype = token->e_type;
 	}
-	// printf("tkn_addr: %p\n", token);
 	free(lexer);
 
 	return (tokens_list);
@@ -153,13 +150,13 @@ void	ft_handle_sq(t_lexer *lexer, char **value)
 	lexer_advance(lexer);
 }
 
-void	ft_handle_$(t_lexer *lexer, char **value, t_list **env_list)
+void	ft_handle_$(t_lexer *lexer, char **value, t_list **env_list, int pretype)
 {
 	char	next_char;
 	int		flag = 0;
 
 	next_char = lexer->content[lexer->i + 1];
-	if (next_char != '_' && !ft_isalnum(next_char))
+	if (pretype != TOKEN_HRDOC && next_char != '_' && !ft_isalnum(next_char))
 	{
 		// if (next_char == '$')
 			// add_up (pid)
@@ -168,20 +165,24 @@ void	ft_handle_$(t_lexer *lexer, char **value, t_list **env_list)
 			flag = 1;
 			lexer_advance(lexer);
 		}
-		else if (next_char != '\'')
+		else if (next_char != '\'' && next_char != '"')
 		{
 			add_up_char(lexer, value);
 			lexer_advance(lexer);
 			return ;
 		}
 	}
-	lexer_advance(lexer);	// skipping $ sign
 	if (ft_isdigit(lexer->c))
 	{
+		if (pretype == TOKEN_HRDOC)
+		{
+			add_up_char(lexer, value);
+			add_up_char(lexer, value);
+		}
 		lexer_advance(lexer);
 		return ;
 	}
-	// don't forget to handle $_ case
+	lexer_advance(lexer);	// skipping $ sign
 	char	*to_expand;
 
 	if (flag)
@@ -194,18 +195,18 @@ void	ft_handle_$(t_lexer *lexer, char **value, t_list **env_list)
 			add_up_char(lexer, &to_expand);
 			lexer_advance(lexer);
 		}
-		ft_expand(&to_expand, env_list);
+		ft_expand(&to_expand, env_list, pretype);
 	}
 	add_up_str(value, &to_expand);
 }
 
-void	ft_handle_dq(t_lexer *lexer, char **value, t_list **env_list)
+void	ft_handle_dq(t_lexer *lexer, char **value, t_list **env_list, int pretype)
 {
 	lexer_advance(lexer);
 	while (lexer->c != '"')
 	{
 		if (lexer->c == '$')
-			ft_handle_$(lexer, value, env_list);
+			ft_handle_$(lexer, value, env_list, pretype);
 		else
 		{
 			add_up_char(lexer, value);
@@ -215,14 +216,39 @@ void	ft_handle_dq(t_lexer *lexer, char **value, t_list **env_list)
 	lexer_advance(lexer);
 }
 
-void	ft_expand(char **to_expand, t_list **env_list)
+void	ft_expand(char **to_expand, t_list **env_list, int pretype)
 {
 	t_env_content	*content;
-	
+	char			*s;
+
 	content = get_content(*to_expand, env_list);
-	free(*to_expand);
 	if (!content)
-		*to_expand = 0;
+	{
+		if (pretype == TOKEN_HRDOC)
+		{
+			s = ft_calloc(2, sizeof(char));
+			s[0] = '$';
+			s = realloc(s, sizeof(char) * (ft_strlen(*to_expand) + 2));
+			ft_strlcat(s, *to_expand, ft_strlen(*to_expand) + 2);
+			free(*to_expand);
+			*to_expand = s;
+		}
+		else
+		{
+			if (is_redir(pretype))
+			{
+				write(2, "MiniShell: $", 12);
+				write(2, *to_expand, ft_strlen(*to_expand));
+				write(2, ": ambiguous redirect\n", 21);
+				g_estat = 1;
+			}
+			free(*to_expand);
+			*to_expand = 0;
+		}
+	}
 	else
+	{
+		free(*to_expand);
 		*to_expand = ft_strdup(content->value);
+	}
 }
