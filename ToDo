@@ -1,0 +1,40 @@
+''
+FIXED "echo - - fjfj"
+
+FIXED "env | exit   (dont print exit)"
+
+FIXED "ls <file | ls | cat | cat | cat | ls"
+
+FIXED "exit fedm grs  --> must exit in this case + error msg :  bash: exit: tnte: numeric argument required "
+
+
+
+FIXED "
+Minishell-0.1$ rgf 
+Minishell: rgf: command not found
+Minishell-0.1$ 
+
++  ^D
+----> e_stat = 127 not 0  
+"
+
+FIXED "
+{
+	export TES.T=123
+	export TE-ST=100
+	export TE+S=T=
+}
+g_estat = 1 not 0 in some export cases
+"
+
+FOR PARSING:
+
+bash-3.2$ echo imad > ok > of > $dsdsd   ---> files must be created altough error msg
+
+echo $123
+
+echo $"$""USER"
+
+echo "$"
+
+echo $"$"$ '$'$'$' 
