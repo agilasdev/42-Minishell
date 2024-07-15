@@ -11,10 +11,6 @@ Open a `terminal window` and `copy and paste` the following commands into the te
 
 ```
 cd /Desktop & git clone https://github.com/agilasdev/minishell.git
-```
-```
 cd minishell
-```
-```
-> make
+make
 ```
