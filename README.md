@@ -14,5 +14,5 @@ cd /Desktop & git clone https://github.com/agilasdev/minishell.git
 cd minishell
 make & ./minishell
 ```
-## Exit
-If you want exit the program just enter `exit` command in you `Terminal` window.
+
+> If you want to close the program just enter `exit` command in you `Terminal` window.
