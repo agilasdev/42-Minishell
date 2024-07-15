@@ -9,7 +9,7 @@ You need a machine running a `Unix` system with `GNU make` and `GCC` installed i
 ## Installation
 Copy and paste the following command into your terminal:
 ```
-cd /Desktop & git clone https://github.com/agilasdev/minishell.git
+cd ~/Desktop & git clone https://github.com/agilasdev/minishell.git
 ```
 ## Usage
 Copy and paste the following commands into your terminal:
