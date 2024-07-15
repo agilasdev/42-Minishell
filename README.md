@@ -7,10 +7,12 @@ Minishell is one of 42 school projects in `Unix` branch. Its a `Small`, `Lightwi
 ## Requirements
 You need a machine running a `Unix` system with `GNU make` and `GCC` installed in your machine.
 ## Usage
-Open a `terminal window` and `copy and paste` the following commands into the terminal:
+Open a `Terminal window` and `copy and paste` the following commands into the terminal:
 
 ```
 cd /Desktop & git clone https://github.com/agilasdev/minishell.git
 cd minishell
-make
+make & ./minishell
 ```
+## Exit
+If you want exit the program just enter `exit` command in you `Terminal` window.
