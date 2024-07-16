@@ -9,13 +9,13 @@ You need a machine running a `Unix-like` system (eg Ubuntu) with `GNU make` and 
 ## Installation
 Copy and paste the following command into your terminal:
 ```
-cd ~/Desktop & git clone https://github.com/agilasdev/42-Minishell.git
+cd ~ & git clone https://github.com/agilasdev/42-Minishell.git
 ```
 ## Usage
 Copy and paste the following commands into your terminal:
 
 ```
-cd minishell
+cd ~/minishell
 make
 ./minishell
 ```
