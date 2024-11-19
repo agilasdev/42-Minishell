@@ -4,7 +4,7 @@ A Unix shell is a `command-line` interpreter or shell that provides a command li
 ## Minishell
 Minishell is a `Small`, `Lightwight` and `Stable` Unix-shell program.
 # ⚡️ Requirements
-You need a machine running a `Unix-like` os with `Git`, `GNU make` and `GCC` installed in your machine.
+You need a machine running a `Unix-like` os with `Git`, `GNU make` and `GCC` packages installed in your machine.
 # 🚀 Getting Started
 * Installation
 ```
